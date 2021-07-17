@@ -31,6 +31,7 @@ elf_test(int fd)
 						 ehdr.e_ident[EI_MAG1],
 						 ehdr.e_ident[EI_MAG2],
 						 ehdr.e_ident[EI_MAG3]);
+	printf("[*] Type: %d\n", ehdr.e_type);
 	printf("[*] Bits: %d\n", ehdr.e_ident[EI_CLASS] * 32);
 	printf("[*] Section Header Items: %d\n", ehdr.e_shnum);
 	printf("[*] String Table Index: %d\n", ehdr.e_shstrndx);
