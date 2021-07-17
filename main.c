@@ -40,9 +40,10 @@ elf_test(int fd)
 	lseek(fd, shstrtab_off, SEEK_SET);
 	read(fd, &shstrtab, ehdr.e_shentsize);
 	printf("[*] String Table Type: %d\n", shstrtab.sh_type);
+	printf("====================\n");
 	shstrtab_off = shstrtab.sh_offset;
-	
 	lseek(fd, ehdr.e_shoff, SEEK_SET);
+	printf("[*] SHDR:\n");
 	for (i = 0; i < ehdr.e_shnum; ++i) {
 		Elf32_Shdr shdr;
 		char str[64] = { 0 };
@@ -51,7 +52,7 @@ elf_test(int fd)
 		pread(fd, str, sizeof(str) - 1, shstrtab_off + shdr.sh_name);
 		printf("[*] Section Header Index: %d\n", i);
 		printf("[*] Section Header String: %s\n", str);
-		printf("====================\n");
+		printf("--------------------\n");
 
 		if (!strcmp(str, ".strtab")) {
 			strtab_off = shdr.sh_offset;
@@ -83,6 +84,34 @@ elf_test(int fd)
 	printf("[*] .dynsym Offset:  %u\n", dynsym_off);
 	printf("[*] .dynsym EntSize: %u\n", dynsym_entsize);
 	printf("[*] .dynsym Num:     %u\n", dynsym_num);
+	printf("====================\n");
+	lseek(fd, symtab_off, SEEK_SET);
+	printf("[*] SYMTAB:");
+	for (i = 0; i < symtab_num; ++i) {
+		Elf32_Sym sym;
+		char symname[64] = { 0 };
+
+		read(fd, &sym, symtab_entsize);
+		pread(fd, symname, sizeof(symname), strtab_off + sym.st_name);
+
+		printf("[*] Symbol Name: %s\n", symname);
+		printf("[*] Symbol Addr: %p\n", (void *)sym.st_value);
+		printf("--------------------\n");
+	}
+	printf("====================\n");
+	lseek(fd, dynsym_off, SEEK_SET);
+	printf("[*] DYNSYM:");
+	for (i = 0; i < dynsym_num; ++i) {
+		Elf32_Sym sym;
+		char symname[64] = { 0 };
+
+		read(fd, &sym, dynsym_entsize);
+		pread(fd, symname, sizeof(symname), dynstr_off + sym.st_name);
+
+		printf("[*] Symbol Name: %s\n", symname);
+		printf("[*] Symbol Addr: %p\n", (void *)sym.st_value);
+	}
+	printf("====================\n");
 }
 
 int
